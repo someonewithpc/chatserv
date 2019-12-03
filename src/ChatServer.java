@@ -217,31 +217,31 @@ ChatServer
                 }
 
                 // Decode and print the message to stdout
-                String message = decoder.decode(buffer).toString().trim();
                 User sender = (User)key.attachment();
-
+                sender.add_to_commnad(decoder.decode(buffer).toString());
+                String message = sender.get_command();
                 if (message.startsWith("/"))
                 {
-                        String escaped_message = message.substring(1);
-                        String cmd = escaped_message.trim();
+                        String cmd = message.substring(1).trim();
+                        boolean reset = false;
 
-                        if (Pattern.matches(REGEX_NICK, cmd))
+                        if (reset = Pattern.matches(REGEX_NICK, cmd))
                         {
                                 send_nick_command(sender, cmd.split(" ")[1]);
                         }
-                        else if (Pattern.matches(REGEX_JOIN, cmd))
+                        else if (reset = Pattern.matches(REGEX_JOIN, cmd))
                         {
                                 send_join_command(sender, cmd.split(" ")[1]);
                         }
-                        else if (Pattern.matches(REGEX_LEAVE, cmd))
+                        else if (reset = Pattern.matches(REGEX_LEAVE, cmd))
                         {
                                 send_leave_command(sender);
                         }
-                        else if (Pattern.matches(REGEX_BYE, cmd))
+                        else if (reset = Pattern.matches(REGEX_BYE, cmd))
                         {
                                 send_bye_command(key, sender);
                         }
-                        else if (Pattern.matches(REGEX_PRIVATE, cmd))
+                        else if (reset = Pattern.matches(REGEX_PRIVATE, cmd))
                         {
                                 // Delimiters
                                 int receiver_begin = cmd.indexOf(" ") + 1,
@@ -254,13 +254,18 @@ ChatServer
                                         cmd.substring(receiver_end + 1)
                                 );
                         }
-                        else if (cmd.startsWith("/"))
+                        else if (reset = cmd.startsWith("/"))
                         {
-                                send_public_message(sender, escaped_message);
+                                send_public_message(sender, cmd);
                         }
-                        else
+                        else if (cmd.endsWith("\n"))
                         {
+                                System.out.println("ERROORROR");
                                 send_error_message(sender, "Unknown command.");
+                        }
+
+                        if (reset) {
+                                sender.reset_command();
                         }
                 }
                 else

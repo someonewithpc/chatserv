@@ -17,7 +17,7 @@ Message
         // Regex for command process
         private static final String REGEX_OK = "OK";
         private static final String REGEX_ERROR = "ERROR";
-        private static final String REGEX_MESSAGE = "MESSAGE .+ .+";
+        private static final String REGEX_MESSAGE = "MESSAGE .+ .*";
         private static final String REGEX_NEW_NICKNAME = "NEWNICK .+ .+";
         private static final String REGEX_JOINED = "JOINED .+";
         private static final String REGEX_LEFT = "LEFT .+";

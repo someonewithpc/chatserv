@@ -15,10 +15,11 @@ public class
 User
 implements Comparable<User>
 {
-        private String nickname;
+        private String nickname = "";
         private State state;
         private Room room;
         private final SocketChannel socket;
+        private String command = "";
 
         /**
          * Constructor
@@ -27,7 +28,6 @@ implements Comparable<User>
          */
         public User (SocketChannel socket)
         {
-                this.nickname = "";
                 this.state = State.INIT;
                 this.socket = socket;
         }
@@ -107,5 +107,23 @@ implements Comparable<User>
         get_socket ()
         {
                 return this.socket;
+        }
+
+        public void
+        add_to_commnad(String cmd)
+        {
+                this.command += cmd;
+        }
+
+        public String
+        get_command()
+        {
+                return this.command;
+        }
+
+        public void
+        reset_command()
+        {
+                this.command = "";
         }
 }
