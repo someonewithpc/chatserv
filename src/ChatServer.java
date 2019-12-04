@@ -149,6 +149,7 @@ ChatServer
         /**
          * Close a connection with a client
          *
+         * @param key
          * @param sc
          */
         private static void
@@ -197,6 +198,7 @@ ChatServer
         /**
          * Read a message from the socket and process it
          *
+         * @param key
          * @param sc
          * @return boolean false if connection closed, true otherwise
          * @throws IOException
@@ -575,9 +577,11 @@ ChatServer
                 }
         }
 
+
         /**
          * Send bye command
          *
+         * @param key
          * @param sender
          * @throws IOException
          */
