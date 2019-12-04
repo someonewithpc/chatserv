@@ -19,7 +19,7 @@ implements Comparable<User>
         private State state;
         private Room room;
         private final SocketChannel socket;
-        private String command = "";
+        private String buffer = "";
 
         /**
          * Constructor
@@ -110,20 +110,20 @@ implements Comparable<User>
         }
 
         public void
-        add_to_command(String cmd)
+        add_to_buffer(String cmd)
         {
-                this.command += cmd;
+                this.buffer += cmd;
         }
 
         public String
-        get_command()
+        get_buffer()
         {
-                return this.command;
+                return this.buffer;
         }
 
         public void
-        reset_command()
+        advance_buffer(int idx)
         {
-                this.command = "";
+                this.buffer = this.buffer.substring(idx);
         }
 }

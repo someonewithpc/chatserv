@@ -220,17 +220,18 @@ ChatServer
 
                 // Decode and print the message to stdout
                 User sender = (User)key.attachment();
-                sender.add_to_command(decoder.decode(buffer).toString());
-                String message = sender.get_command();
+                sender.add_to_buffer(decoder.decode(buffer).toString());
+                String messages = sender.get_buffer();
                 boolean reset = false;
 
-                // //Print byte representation of incoming message
-                // for (final char c : message.toCharArray()) {
-                //         System.out.print((int) c + " ");
-                // }
-                // System.out.println();
+                for (String message : messages.split("\n")) {
 
-                if (message.endsWith("\n")) {
+                        // //Print byte representation of incoming message
+                        // for (final char c : message.toCharArray()) {
+                        //         System.out.print((int) c + " ");
+                        // }
+                        // System.out.println();
+
                         if (message.startsWith("/"))
                         {
                                 String cmd = message.substring(1).trim();
@@ -262,13 +263,13 @@ ChatServer
                                             cmd.substring(receiver_begin, receiver_end),
                                             // Message
                                             cmd.substring(receiver_end + 1)
-                                        );
+                                            );
                                 }
                                 else if (reset = cmd.startsWith("/"))
                                 {
                                         send_public_message(sender, cmd);
                                 }
-                                else if (reset = message.endsWith("\n"))
+                                else
                                 {
                                         send_error_message(sender, "Unknown command.");
                                 }
@@ -279,12 +280,11 @@ ChatServer
                                 reset = true;
                                 send_public_message(sender, message.trim());
                         }
-                }
 
-                if (reset) {
-                        sender.reset_command();
+                        if (reset) {
+                                sender.advance_buffer(message.length() + 1);
+                        }
                 }
-
                 return true;
         }
 
