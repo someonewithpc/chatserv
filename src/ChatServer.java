@@ -218,64 +218,69 @@ ChatServer
 
                 // Decode and print the message to stdout
                 User sender = (User)key.attachment();
-                sender.add_to_commnad(decoder.decode(buffer).toString());
+                sender.add_to_command(decoder.decode(buffer).toString());
                 String message = sender.get_command();
-                if (message.startsWith("/"))
-                {
-                        String cmd = message.substring(1).trim();
-                        boolean reset = false;
+                boolean reset = false;
 
-                        if (reset = Pattern.matches(REGEX_NICK, cmd))
-                        {
-                                send_nick_command(sender, cmd.split(" ")[1]);
-                        }
-                        else if (reset = Pattern.matches(REGEX_JOIN, cmd))
-                        {
-                                send_join_command(sender, cmd.split(" ")[1]);
-                        }
-                        else if (reset = Pattern.matches(REGEX_LEAVE, cmd))
-                        {
-                                send_leave_command(sender);
-                        }
-                        else if (reset = Pattern.matches(REGEX_BYE, cmd))
-                        {
-                                send_bye_command(key, sender);
-                        }
-                        else if (reset = Pattern.matches(REGEX_PRIVATE, cmd))
-                        {
-                                // Delimiters
-                                int receiver_begin = cmd.indexOf(" ") + 1,
-                                    receiver_end = cmd.indexOf(" ", receiver_begin);
-                                send_private_command(
-                                        sender,
-                                        // Emitter
-                                        cmd.substring(receiver_begin, receiver_end),
-                                        // Message
-                                        cmd.substring(receiver_end + 1)
-                                );
-                        }
-                        else if (reset = cmd.startsWith("/"))
-                        {
-                                send_public_message(sender, cmd);
-                        }
-                        else if (reset = message.endsWith("\n"))
-                        {
-                                send_error_message(sender, "Unknown command.");
-                        }
+                // //Print byte representation of incoming message
+                // for (final char c : message.toCharArray()) {
+                //         System.out.print((int) c + " ");
+                // }
+                // System.out.println();
 
-                        // Print byte representation of incoming message
-                        // for (final char c : message.toCharArray()) {
-                        //         System.out.print((int) c + " ");
-                        // }
-                        // System.out.println();
+                if (message.endsWith("\n")) {
+                        if (message.startsWith("/"))
+                        {
+                                String cmd = message.substring(1).trim();
 
-                        if (reset) {
-                                sender.reset_command();
+                                if (reset = Pattern.matches(REGEX_NICK, cmd))
+                                {
+                                        send_nick_command(sender, cmd.split(" ")[1]);
+                                }
+                                else if (reset = Pattern.matches(REGEX_JOIN, cmd))
+                                {
+                                        send_join_command(sender, cmd.split(" ")[1]);
+                                }
+                                else if (reset = Pattern.matches(REGEX_LEAVE, cmd))
+                                {
+                                        send_leave_command(sender);
+                                }
+                                else if (reset = Pattern.matches(REGEX_BYE, cmd))
+                                {
+                                        send_bye_command(key, sender);
+                                }
+                                else if (reset = Pattern.matches(REGEX_PRIVATE, cmd))
+                                {
+                                        // Delimiters
+                                        int receiver_begin = cmd.indexOf(" ") + 1,
+                                            receiver_end = cmd.indexOf(" ", receiver_begin);
+                                        send_private_command(
+                                            sender,
+                                            // Emitter
+                                            cmd.substring(receiver_begin, receiver_end),
+                                            // Message
+                                            cmd.substring(receiver_end + 1)
+                                        );
+                                }
+                                else if (reset = cmd.startsWith("/"))
+                                {
+                                        send_public_message(sender, cmd);
+                                }
+                                else if (reset = message.endsWith("\n"))
+                                {
+                                        send_error_message(sender, "Unknown command.");
+                                }
+
+                        }
+                        else
+                        {
+                                reset = true;
+                                send_public_message(sender, message.trim());
                         }
                 }
-                else
-                {
-                        send_public_message(sender, message);
+
+                if (reset) {
+                        sender.reset_command();
                 }
 
                 return true;

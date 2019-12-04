@@ -110,7 +110,7 @@ implements Comparable<User>
         }
 
         public void
-        add_to_commnad(String cmd)
+        add_to_command(String cmd)
         {
                 this.command += cmd;
         }
