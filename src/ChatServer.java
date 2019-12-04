@@ -258,11 +258,16 @@ ChatServer
                         {
                                 send_public_message(sender, cmd);
                         }
-                        else if (cmd.endsWith("\n"))
+                        else if (reset = message.endsWith("\n"))
                         {
-                                System.out.println("ERROORROR");
                                 send_error_message(sender, "Unknown command.");
                         }
+
+                        // Print byte representation of incoming message
+                        // for (final char c : message.toCharArray()) {
+                        //         System.out.print((int) c + " ");
+                        // }
+                        // System.out.println();
 
                         if (reset) {
                                 sender.reset_command();
@@ -449,7 +454,7 @@ ChatServer
         send_nick_command (User sender, String nick)
         throws IOException
         {
-                if (nickname_user.containsKey(nick))
+                if (nickname_user.containsKey(nick) && !sender.get_nickname().equals(nick))
                 {
                         send_error_message(sender, "There already is a user with nick " + nick);
                 }

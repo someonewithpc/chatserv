@@ -154,7 +154,8 @@ ChatClient
                         return;
                 }
 
-                BufferedReader input_reader = new BufferedReader(new InputStreamReader(client_socket.socket().getInputStream()));
+                BufferedReader input_reader =
+                        new BufferedReader(new InputStreamReader(client_socket.socket().getInputStream()));
 
                 // Listen loop
                 while (true)
@@ -170,6 +171,8 @@ ChatClient
                         message = message.trim();
 
                         printMessage(Message.parse_string(message).toString(true));
+                        int len = chatArea.getDocument().getLength();  // Length of chat text in lines
+                        chatArea.setCaretPosition(len);                // Scroll to bottom
                 }
 
                 System.out.println("Terminated.");
