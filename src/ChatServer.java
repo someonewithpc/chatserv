@@ -238,7 +238,7 @@ ChatServer
 
                                 if (reset = Pattern.matches(REGEX_NICK, cmd))
                                 {
-                                        send_nick_command(sender, cmd.split(" ")[1]);
+                                        send_nickname_command(sender, cmd.split(" ")[1]);
                                 }
                                 else if (reset = Pattern.matches(REGEX_JOIN, cmd))
                                 {
@@ -356,7 +356,7 @@ ChatServer
          * @throws IOException
          */
         private static void
-        send_new_nickname_message (User receiver, String old_nickname, String new_nickname)
+        send_nickname_message (User receiver, String old_nickname, String new_nickname)
         throws IOException
         {
                 Message message = new Message(MessageType.NEW_NICKNAME, old_nickname, new_nickname);
@@ -458,7 +458,7 @@ ChatServer
          * @throws IOException
          */
         private static void
-        send_nick_command (User sender, String nick)
+        send_nickname_command (User sender, String nick)
         throws IOException
         {
                 if (nickname_user.containsKey(nick) && !sender.get_nickname().equals(nick))
@@ -481,7 +481,7 @@ ChatServer
                                 {
                                         if (user != sender)
                                         {
-                                                send_new_nickname_message(user, sender.get_nickname(), nick);
+                                                send_nickname_message(user, sender.get_nickname(), nick);
                                         }
                                 }
                         }
