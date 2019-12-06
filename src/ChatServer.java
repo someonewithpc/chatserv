@@ -231,34 +231,33 @@ ChatServer
 
                 for (String instruction : instructions.split("\n"))
                 {
-                        // //Print byte representation of incoming message
+                        // // Print byte representation of incoming message
                         // for (final char c : message.toCharArray()) {
                         //         System.out.print((int) c + " ");
                         // }
                         // System.out.println();
 
-                        boolean processed_instruction = false;
                         if (instruction.startsWith("/"))
                         {
                                 String cmd = instruction.substring(1).trim();
 
-                                if (processed_instruction = Pattern.matches(REGEX_NEW_NICKNAME, cmd))
+                                if (Pattern.matches(REGEX_NEW_NICKNAME, cmd))
                                 {
                                         send_nickname_command(sender, cmd.split(" ")[1]);
                                 }
-                                else if (processed_instruction = Pattern.matches(REGEX_JOIN, cmd))
+                                else if (Pattern.matches(REGEX_JOIN, cmd))
                                 {
                                         send_join_command(sender, cmd.split(" ")[1]);
                                 }
-                                else if (processed_instruction = Pattern.matches(REGEX_LEAVE, cmd))
+                                else if (Pattern.matches(REGEX_LEAVE, cmd))
                                 {
                                         send_leave_command(sender);
                                 }
-                                else if (processed_instruction = Pattern.matches(REGEX_BYE, cmd))
+                                else if (Pattern.matches(REGEX_BYE, cmd))
                                 {
                                         send_bye_command(key, sender);
                                 }
-                                else if (processed_instruction = Pattern.matches(REGEX_PRIVATE, cmd))
+                                else if (Pattern.matches(REGEX_PRIVATE, cmd))
                                 {
                                         // Delimiters
                                         int receiver_begin = cmd.indexOf(" ") + 1,
@@ -271,7 +270,7 @@ ChatServer
                                             cmd.substring(receiver_end + 1)
                                         );
                                 }
-                                else if (processed_instruction = cmd.startsWith("/"))
+                                else if (cmd.startsWith("/"))
                                 {
                                         send_public_message(sender, cmd);
                                 }
@@ -281,16 +280,13 @@ ChatServer
                                 }
 
                         }
-                        else
+                        else if (instruction.length() != 0)
                         {
-                                processed_instruction = true;
                                 send_public_message(sender, instruction.trim());
                         }
 
-                        if (processed_instruction)
-                        {
-                                sender.advance_buffer(instruction.length() + 1);
-                        }
+
+                        sender.advance_buffer(instruction.length() + 1);
                 }
                 return true;
         }
