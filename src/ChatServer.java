@@ -32,7 +32,7 @@ ChatServer
         private static final CharsetEncoder encoder = charset.newEncoder();
 
         // Regex for message process
-        private static final String REGEX_NICK = "nick .+";
+        private static final String REGEX_NEW_NICKNAME = "nick .+";
         private static final String REGEX_JOIN = "join .+";
         private static final String REGEX_LEAVE = "leave.*";
         private static final String REGEX_BYE = "bye.*";
@@ -218,41 +218,47 @@ ChatServer
                         return false;
                 }
 
-                // Decode and print the message to stdout
+                // Decode and add to buffer
                 User sender = (User)key.attachment();
                 sender.add_to_buffer(decoder.decode(buffer).toString());
-                String messages = sender.get_buffer();
-                boolean reset = false;
+                String instructions = sender.get_buffer();
 
-                for (String message : messages.split("\n")) {
+                // We only want to process full instructions
+                if (!instructions.endsWith("\n"))
+                {
+                        return true;
+                }
 
+                for (String instruction : instructions.split("\n"))
+                {
                         // //Print byte representation of incoming message
                         // for (final char c : message.toCharArray()) {
                         //         System.out.print((int) c + " ");
                         // }
                         // System.out.println();
 
-                        if (message.startsWith("/"))
+                        boolean processed_instruction = false;
+                        if (instruction.startsWith("/"))
                         {
-                                String cmd = message.substring(1).trim();
+                                String cmd = instruction.substring(1).trim();
 
-                                if (reset = Pattern.matches(REGEX_NICK, cmd))
+                                if (processed_instruction = Pattern.matches(REGEX_NEW_NICKNAME, cmd))
                                 {
                                         send_nickname_command(sender, cmd.split(" ")[1]);
                                 }
-                                else if (reset = Pattern.matches(REGEX_JOIN, cmd))
+                                else if (processed_instruction = Pattern.matches(REGEX_JOIN, cmd))
                                 {
                                         send_join_command(sender, cmd.split(" ")[1]);
                                 }
-                                else if (reset = Pattern.matches(REGEX_LEAVE, cmd))
+                                else if (processed_instruction = Pattern.matches(REGEX_LEAVE, cmd))
                                 {
                                         send_leave_command(sender);
                                 }
-                                else if (reset = Pattern.matches(REGEX_BYE, cmd))
+                                else if (processed_instruction = Pattern.matches(REGEX_BYE, cmd))
                                 {
                                         send_bye_command(key, sender);
                                 }
-                                else if (reset = Pattern.matches(REGEX_PRIVATE, cmd))
+                                else if (processed_instruction = Pattern.matches(REGEX_PRIVATE, cmd))
                                 {
                                         // Delimiters
                                         int receiver_begin = cmd.indexOf(" ") + 1,
@@ -263,9 +269,9 @@ ChatServer
                                             cmd.substring(receiver_begin, receiver_end),
                                             // Message
                                             cmd.substring(receiver_end + 1)
-                                            );
+                                        );
                                 }
-                                else if (reset = cmd.startsWith("/"))
+                                else if (processed_instruction = cmd.startsWith("/"))
                                 {
                                         send_public_message(sender, cmd);
                                 }
@@ -277,12 +283,13 @@ ChatServer
                         }
                         else
                         {
-                                reset = true;
-                                send_public_message(sender, message.trim());
+                                processed_instruction = true;
+                                send_public_message(sender, instruction.trim());
                         }
 
-                        if (reset) {
-                                sender.advance_buffer(message.length() + 1);
+                        if (processed_instruction)
+                        {
+                                sender.advance_buffer(instruction.length() + 1);
                         }
                 }
                 return true;
