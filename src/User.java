@@ -109,20 +109,29 @@ implements Comparable<User>
                 return this.socket;
         }
 
+        /**
+         * @param cmd
+         */
         public void
-        add_to_buffer(String cmd)
+        add_to_buffer (String cmd)
         {
                 this.buffer += cmd;
         }
 
+        /**
+         * @return String
+         */
         public String
-        get_buffer()
+        get_buffer ()
         {
                 return this.buffer;
         }
 
+        /**
+         * @param idx
+         */
         public void
-        advance_buffer(int idx)
+        advance_buffer (int idx)
         {
                 this.buffer = this.buffer.substring(idx);
         }

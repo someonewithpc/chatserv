@@ -34,8 +34,8 @@ ChatServer
         // Regex for message process
         private static final String REGEX_NEW_NICKNAME = "nick .+";
         private static final String REGEX_JOIN = "join .+";
-        private static final String REGEX_LEAVE = "leave.*";
-        private static final String REGEX_BYE = "bye.*";
+        private static final String REGEX_LEAVE = "leave";
+        private static final String REGEX_BYE = "bye";
         private static final String REGEX_PRIVATE = "priv .+ .+";
 
         // Users info
