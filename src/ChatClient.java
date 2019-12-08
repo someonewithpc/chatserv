@@ -145,7 +145,7 @@ ChatClient
                 try
                 {
                         while (!client_socket.finishConnect())
-                                ; // Empty
+                        {;} /* Deliberately blank. */
                 }
                 catch (IOException ce)
                 {

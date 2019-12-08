@@ -232,7 +232,7 @@ ChatServer
                 for (String instruction : instructions.split("\n"))
                 {
                         // // Print byte representation of incoming message
-                        // for (final char c : message.toCharArray()) {
+                        // for (final char c : instruction.toCharArray()) {
                         //         System.out.print((int) c + " ");
                         // }
                         // System.out.println();
