@@ -1,3 +1,4 @@
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -14,15 +15,18 @@ enum MessageType
 public class
 Message
 {
+        public static final String REGEX_NICKNAME = "([^ .]+)";
+        public static final String REGEX_ROOM_NAME = "([^ .]+)";
+        public static final String REGEX_TEXT = "(.*)";
         // Regex for command process
-        private static final String REGEX_OK = "OK";
-        private static final String REGEX_ERROR = "ERROR";
-        private static final String REGEX_MESSAGE = "MESSAGE .+ .*";
-        private static final String REGEX_NEW_NICKNAME = "NEWNICK .+ .+";
-        private static final String REGEX_JOINED = "JOINED .+";
-        private static final String REGEX_LEFT = "LEFT .+";
-        private static final String REGEX_BYE = "BYE";
-        private static final String REGEX_PRIVATE = "PRIVATE .+ .+";
+        private static final String REGEX_CMD_OK = "OK";
+        private static final String REGEX_CMD_ERROR = "ERROR";
+        private static final String REGEX_CMD_MESSAGE = "MESSAGE " + REGEX_NICKNAME + " " + REGEX_TEXT;
+        private static final String REGEX_CMD_NEW_NICKNAME = "NEWNICK " + REGEX_NICKNAME + " " + REGEX_NICKNAME;
+        private static final String REGEX_CMD_JOINED = "JOINED " + REGEX_NICKNAME;
+        private static final String REGEX_CMD_LEFT = "LEFT " + REGEX_NICKNAME;
+        private static final String REGEX_CMD_BYE = "BYE";
+        private static final String REGEX_CMD_PRIVATE = "PRIVATE " + REGEX_NICKNAME + " " + REGEX_TEXT;
         private final MessageType type;
         // There are no getters for these two attributes, refer to toString
         private final String token1;
@@ -80,53 +84,49 @@ Message
         parse_string (String text)
         {
                 MessageType type;
+                Matcher tokens;
                 String token1 = "";
                 String token2 = "";
 
-                if (Pattern.matches(REGEX_OK, text))
+                if (Pattern.matches(REGEX_CMD_OK, text))
                 {
                         type = MessageType.OK;
                 }
-                else if (Pattern.matches(REGEX_ERROR, text))
+                else if (Pattern.matches(REGEX_CMD_ERROR, text))
                 {
                         type = MessageType.ERROR;
                 }
-                else if (Pattern.matches(REGEX_MESSAGE, text))
+                else if ((tokens = Pattern.compile(REGEX_CMD_MESSAGE).matcher(text)).find())
                 {
                         type = MessageType.MESSAGE;
-                        int receiver_begin = text.indexOf(" ")+1,
-                                receiver_end = text.indexOf(" ", receiver_begin);
-                        token1 = text.substring(receiver_begin, receiver_end); // Emitter
-                        token2 = text.substring(receiver_end+1); // Message
+                        token1 = tokens.group(1); // Emitter
+                        token2 = tokens.group(2); // Message
                 }
-                else if (Pattern.matches(REGEX_NEW_NICKNAME, text))
+                else if ((tokens = Pattern.compile(REGEX_CMD_NEW_NICKNAME).matcher(text)).find())
                 {
                         type = MessageType.NEW_NICKNAME;
-                        token1 = text.split(" ")[1];
-                        token2 = text.split(" ")[2];
+                        token1 = tokens.group(1); // Old nickname
+                        token2 = tokens.group(2); // New nickname
                 }
-                else if (Pattern.matches(REGEX_JOINED, text))
+                else if ((tokens = Pattern.compile(REGEX_CMD_JOINED).matcher(text)).find())
                 {
                         type = MessageType.JOINED;
-                        token1 = text.split(" ")[1];
+                        token1 = tokens.group(1);
                 }
-                else if (Pattern.matches(REGEX_LEFT, text))
+                else if ((tokens = Pattern.compile(REGEX_CMD_LEFT).matcher(text)).find())
                 {
                         type = MessageType.LEFT;
-                        token1 = text.split(" ")[1];
+                        token1 = tokens.group(1);
                 }
-                else if (Pattern.matches(REGEX_BYE, text))
+                else if (Pattern.matches(REGEX_CMD_BYE, text))
                 {
                         type = MessageType.BYE;
                 }
-                else if (Pattern.matches(REGEX_PRIVATE, text))
+                else  if ((tokens = Pattern.compile(REGEX_CMD_PRIVATE).matcher(text)).find())
                 {
                         type = MessageType.PRIVATE;
-                        // Delimiters
-                        int receiver_begin = text.indexOf(" ")+1,
-                            receiver_end = text.indexOf(" ", receiver_begin);
-                        token1 = text.substring(receiver_begin, receiver_end); // Emitter
-                        token2 = text.substring(receiver_end+1); // Message
+                        token1 = tokens.group(1); // Emitter
+                        token2 = tokens.group(2); // Message
                 }
                 else
                 {

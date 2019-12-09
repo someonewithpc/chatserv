@@ -15,11 +15,11 @@ public class
 User
 implements Comparable<User>
 {
-        private String nickname = "";
-        private State state;
+        private String nickname;
+        private State state = State.INIT;
         private Room room;
         private final SocketChannel socket;
-        private String buffer = "";
+        private StringBuilder buffer = new StringBuilder();
 
         /**
          * Constructor
@@ -28,7 +28,6 @@ implements Comparable<User>
          */
         public User (SocketChannel socket)
         {
-                this.state = State.INIT;
                 this.socket = socket;
         }
 
@@ -115,13 +114,13 @@ implements Comparable<User>
         public void
         add_to_buffer (String cmd)
         {
-                this.buffer += cmd;
+                this.buffer.append(cmd);
         }
 
         /**
          * @return String
          */
-        public String
+        public StringBuilder
         get_buffer ()
         {
                 return this.buffer;
@@ -133,6 +132,6 @@ implements Comparable<User>
         public void
         advance_buffer (int idx)
         {
-                this.buffer = this.buffer.substring(idx);
+                this.buffer.delete(0, idx);
         }
 }

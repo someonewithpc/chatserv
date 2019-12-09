@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -32,11 +33,11 @@ ChatServer
         private static final CharsetEncoder encoder = charset.newEncoder();
 
         // Regex for message process
-        private static final String REGEX_NEW_NICKNAME = "nick .+";
-        private static final String REGEX_JOIN = "join .+";
-        private static final String REGEX_LEAVE = "leave";
-        private static final String REGEX_BYE = "bye";
-        private static final String REGEX_PRIVATE = "priv .+ .+";
+        private static final String REGEX_MSG_NEW_NICKNAME = "nick " + Message.REGEX_NICKNAME;
+        private static final String REGEX_MSG_JOIN = "join " + Message.REGEX_ROOM_NAME;
+        private static final String REGEX_MSG_LEAVE = "leave";
+        private static final String REGEX_MSG_BYE = "bye";
+        private static final String REGEX_MSG_PRIVATE = "priv " + Message.REGEX_NICKNAME + " " + Message.REGEX_TEXT;
 
         // Users info
         private static final HashMap<String, User> nickname_user = new HashMap<>();
@@ -221,7 +222,13 @@ ChatServer
                 // Decode and add to buffer
                 User sender = (User)key.attachment();
                 sender.add_to_buffer(decoder.decode(buffer).toString());
-                String instructions = sender.get_buffer();
+                String instructions = sender.get_buffer().toString();
+
+                // // Print byte representation of incoming package
+                // for (final char c : instructions.toCharArray()) {
+                //         System.out.print((int) c + " ");
+                // }
+                // System.out.println();
 
                 // We only want to process full instructions
                 if (!instructions.endsWith("\n"))
@@ -231,43 +238,35 @@ ChatServer
 
                 for (String instruction : instructions.split("\n"))
                 {
-                        // // Print byte representation of incoming message
-                        // for (final char c : instruction.toCharArray()) {
-                        //         System.out.print((int) c + " ");
-                        // }
-                        // System.out.println();
-
+                        Matcher tokens;
                         if (instruction.startsWith("/"))
                         {
                                 String cmd = instruction.substring(1).trim();
 
-                                if (Pattern.matches(REGEX_NEW_NICKNAME, cmd))
+                                if ((tokens = Pattern.compile(REGEX_MSG_NEW_NICKNAME).matcher(cmd)).find())
                                 {
-                                        send_nickname_command(sender, cmd.split(" ")[1]);
+                                        send_nickname_command(sender, tokens.group(1));
                                 }
-                                else if (Pattern.matches(REGEX_JOIN, cmd))
+                                else if ((tokens = Pattern.compile(REGEX_MSG_JOIN).matcher(cmd)).find())
                                 {
-                                        send_join_command(sender, cmd.split(" ")[1]);
+                                        send_join_command(sender, tokens.group(1));
                                 }
-                                else if (Pattern.matches(REGEX_LEAVE, cmd))
+                                else if (Pattern.matches(REGEX_MSG_LEAVE, cmd))
                                 {
                                         send_leave_command(sender);
                                 }
-                                else if (Pattern.matches(REGEX_BYE, cmd))
+                                else if (Pattern.matches(REGEX_MSG_BYE, cmd))
                                 {
                                         send_bye_command(key, sender);
                                 }
-                                else if (Pattern.matches(REGEX_PRIVATE, cmd))
+                                else if ((tokens = Pattern.compile(REGEX_MSG_PRIVATE).matcher(cmd)).find())
                                 {
-                                        // Delimiters
-                                        int receiver_begin = cmd.indexOf(" ") + 1,
-                                            receiver_end = cmd.indexOf(" ", receiver_begin);
                                         send_private_command(
                                             sender,
                                             // Emitter
-                                            cmd.substring(receiver_begin, receiver_end),
+                                            tokens.group(1),
                                             // Message
-                                            cmd.substring(receiver_end + 1)
+                                            tokens.group(2)
                                         );
                                 }
                                 else if (cmd.startsWith("/"))
@@ -464,11 +463,12 @@ ChatServer
         send_nickname_command (User sender, String nick)
         throws IOException
         {
-                if (nickname_user.containsKey(nick) && !sender.get_nickname().equals(nick))
-                {
-                        send_error_message(sender, "There already is a user with nick " + nick);
-                }
-                else
+                if (
+                        // Allow to change to the current nick
+                        ((sender.get_nickname() != null) && sender.get_nickname().equals(nick))
+                                || // Don't allow to set an existing nick
+                                !nickname_user.containsKey(nick)
+                )
                 {
                         if (sender.get_state() == State.INIT)
                         {
@@ -493,6 +493,10 @@ ChatServer
                         nickname_user.put(nick, sender);
                         send_ok_message(sender);
                         sender.set_nickname(nick);
+                }
+                else
+                {
+                        send_error_message(sender, "There already is a user with nick " + nick);
                 }
         }
 
