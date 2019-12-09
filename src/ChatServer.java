@@ -465,10 +465,12 @@ ChatServer
         {
                 if (
                         // Allow to change to the current nick
-                        ((sender.get_nickname() != null) && sender.get_nickname().equals(nick))
-                                || // Don't allow to set an existing nick
-                                !nickname_user.containsKey(nick)
-                )
+                        // Only compare if the user already has a nickname
+                        ((sender.get_state() != State.INIT)
+                         && sender.get_nickname().equals(nick))
+                        || // Don't allow to set a nickname already in use
+                        !nickname_user.containsKey(nick)
+                   )
                 {
                         if (sender.get_state() == State.INIT)
                         {

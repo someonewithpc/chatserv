@@ -128,7 +128,6 @@ ChatClient
         throws IOException
         {
                 // PREENCHER AQUI com código que envia a mensagem ao servidor
-
                 client_socket.write(encoder.encode(CharBuffer.wrap(message + "\n")));
         }
 
